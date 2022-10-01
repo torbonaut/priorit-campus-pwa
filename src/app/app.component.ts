@@ -24,19 +24,17 @@ export class AppComponent implements OnDestroy {
         headerTitleService: AppHeaderTitleService,
         private readonly msg: NzMessageService,
         private readonly store: Store,
-        private readonly actions$: Actions,
+        private readonly actions$: Actions
     ) {
         this.headerTitle$ = headerTitleService.get();
 
         this.actions$
-            .pipe(
-                ofActionSuccessful(Auth.Logout),
-                takeUntil(this.unsubscribe$))
+            .pipe(ofActionSuccessful(Auth.Logout), takeUntil(this.unsubscribe$))
             .subscribe(() => {
                 this.msg.info('Sie wurden abgemeldet.');
                 this.store.dispatch(new Navigate(['/login']));
             });
-        
+
         this.actions$
             .pipe(
                 ofActionSuccessful(RouterNavigation),
@@ -48,9 +46,19 @@ export class AppComponent implements OnDestroy {
 
         this.isAuthenticated$ = this.store.select(AuthState.isAuthenticated);
 
-        this.store.dispatch(new User.GetCurrent());
+        this.isAuthenticated$
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((isAuthenticated) => {
+                if (isAuthenticated) {
+                    this.store.dispatch(new User.GetCurrent());
+                }
+            });
 
-        
+        this.actions$
+            .pipe(ofActionSuccessful(Auth.Login), takeUntil(this.unsubscribe$))
+            .subscribe(() => {
+                this.store.dispatch(new Navigate(['/member/dashboard']));
+            });
     }
 
     ngOnDestroy(): void {

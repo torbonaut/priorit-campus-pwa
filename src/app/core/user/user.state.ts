@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext } from "@ngxs/store";
 import { tap } from "rxjs";
 import { User } from "./user.actions";
@@ -29,7 +29,7 @@ export class UserState  {
     getCurrent(ctx: StateContext<UserStateModel>, action: User.GetCurrent) {
         return this.userService.getCurrentUser().pipe(
             tap((response: UserApiResponse) => {
-                ctx.setState({
+                const newState = {
                     id: response.data.id,
                     firstname: response.data.first_name,
                     lastname: response.data.last_name,
@@ -37,8 +37,10 @@ export class UserState  {
                     email: response.data.email,
                     status: response.data.status,
                     title: response.data.title,
-                    avatar: response.data.avatar
-                });
+                    avatar: response.data.avatar,
+                };
+                
+                ctx.setState(newState);
             })
         );
     }
