@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { Navigate } from '@ngxs/router-plugin';
 import {
     Actions,
     ofActionErrored,
-    ofActionSuccessful,
     Store,
 } from '@ngxs/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -30,12 +28,6 @@ export class AppLoginComponent implements OnDestroy {
         private readonly msg: NzMessageService
     ) {
         headerTitleService.set('Anmelden');
-
-        this.actions$
-            .pipe(ofActionSuccessful(Auth.Login), takeUntil(this.unsubscribe$))
-            .subscribe(() => {
-                this.store.dispatch(new Navigate(['/member/dashboard']));
-            });
 
         this.actions$
             .pipe(ofActionErrored(Auth.Login), takeUntil(this.unsubscribe$))

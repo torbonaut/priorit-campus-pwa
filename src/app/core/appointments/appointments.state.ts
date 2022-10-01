@@ -24,7 +24,6 @@ export class AppointmentsState {
     @Selector()
     static all(state: AppointmentsStateModel) {
         const items: { [key: number]: Appointment } = { ...state.items };
-
         return Object.keys(items).map((key) => items[parseInt(key)]);
     }
 
@@ -33,6 +32,7 @@ export class AppointmentsState {
         ctx: StateContext<AppointmentsStateModel>,
         action: Appointments.LoadAll
     ) {
+
         return this.appointmentsService.loadAppointments().pipe(
             tap((response: AppointmentsApiResponse) => {
                 const ids: number[] = [];
@@ -43,7 +43,7 @@ export class AppointmentsState {
                     items[item.id] = item;
                 });
 
-                ctx.setState({ ids, items });
+                ctx.setState({ ids: [...ids], items: { ...items } });
             })
         );
     }
