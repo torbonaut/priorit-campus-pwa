@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { NZ_I18N } from 'ng-zorro-antd/i18n';
@@ -21,7 +21,7 @@ import { NgxsModule } from '@ngxs/store';
 import { environment } from 'src/environments/environment';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
-
+import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
 
 registerLocaleData(de);
 
@@ -42,8 +42,11 @@ registerLocaleData(de);
         NgxsModule.forRoot([], {
             developmentMode: !environment.production,
         }),
-      NgxsReduxDevtoolsPluginModule.forRoot({ name: 'priorit-hackathon-2022'}),
-        NgxsStoragePluginModule.forRoot()
+        NgxsReduxDevtoolsPluginModule.forRoot({
+            name: 'priorit-hackathon-2022',
+        }),
+        NgxsStoragePluginModule.forRoot(),
+        NgxsRouterPluginModule.forRoot(),
     ],
     providers: [
         {
@@ -52,8 +55,9 @@ registerLocaleData(de);
             multi: true,
         },
         { provide: NZ_I18N, useValue: de_DE },
+        { provide: LOCALE_ID, useValue: 'de' },
     ],
     bootstrap: [AppComponent],
-    exports: []
+    exports: [],
 })
 export class AppModule {}

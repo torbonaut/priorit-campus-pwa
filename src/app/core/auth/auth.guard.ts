@@ -1,5 +1,6 @@
-import { Injectable, NgZone } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
+import { Injectable } from "@angular/core";
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from "@angular/router";
+import { Navigate } from "@ngxs/router-plugin";
 import { Store } from "@ngxs/store";
 import { NzMessageService } from "ng-zorro-antd/message";
 import { Observable, tap } from "rxjs";
@@ -11,10 +12,8 @@ export class AuthGuard implements CanActivate {
     isAuthenticated$: Observable<boolean>;
         
     constructor(
-        private readonly router: Router,
         private readonly msg: NzMessageService,
         private readonly store: Store,
-        private readonly ngZone: NgZone
     ) {
         this.isAuthenticated$ = this.store.select( AuthState.isAuthenticated);
     }
@@ -29,7 +28,7 @@ export class AuthGuard implements CanActivate {
                 if (!isAuthenticated) {
                     this.store.dispatch(new Auth.Logout());
                     this.msg.warning('Sie haben keine Berechtigung.');
-                    this.ngZone.run( () => this.router.navigateByUrl('/login'));
+                    this.store.dispatch(new Navigate(['/login']));
                 }
             })
         );
