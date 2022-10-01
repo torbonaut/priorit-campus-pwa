@@ -1,0 +1,79 @@
+<nz-layout class="app-layout">
+    <nz-sider
+        class="menu-sidebar"
+        nzCollapsible
+        nzWidth="256px"
+        [nzCollapsedWidth]="0"
+        nzBreakpoint="md"
+        [(nzCollapsed)]="isCollapsed"
+        [nzTrigger]="null"
+    >
+        <div class="sidebar-logo">
+            <img
+                src="assets/images/priorit-logo.svg"
+                alt="priorIT"
+                [ngClass]="{ small: isCollapsed === true }"
+            />
+            <h1 nz-typography>Spaß am Campus</h1>
+        </div>
+        <ul
+            nz-menu
+            nzTheme="dark"
+            nzMode="inline"
+            [nzInlineCollapsed]="isCollapsed"
+            *ngIf="!isCollapsed"
+        >
+            <li  *ngIf="isAuthenticated$ | async" nz-submenu nzOpen nzTitle="Allgemein" nzIcon="appstore">
+                <ul>
+                    <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/dashboard">Dashboard</a>
+                    </li>
+                    <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/profile">Benutzerprofil</a>
+                    </li>
+                    <li nz-menu-item nzMatchRouter>
+                        <a (click)="logout()">Abmelden</a>
+                    </li>
+                </ul>
+            </li>
+            <li *ngIf="isAuthenticated$ | async" nz-submenu nzOpen nzTitle="Apps" nzIcon="form">
+                <ul>
+                    <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/add-appointment">Teamtreff</a>
+                    </li>
+                                        <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/picture-it">A wos isn des?</a>
+                    </li>
+                    <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/what-would-i-be-as">WasWärIch</a>
+                    </li>
+                    <li nz-menu-item nzMatchRouter>
+                        <a routerLink="/member/billatschnig">A gemma Billatschnig?</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nz-sider>
+    <nz-layout>
+        <nz-header>
+            <div class="app-header">
+                <span
+                    class="header-trigger"
+                    (click)="isCollapsed = !isCollapsed"
+                >
+                    <span
+                        class="trigger"
+                        nz-icon
+                        [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+                    ></span>
+                </span>
+                <h3 nz-typography>{{ headerTitle$ | async }}</h3>
+            </div>
+        </nz-header>
+        <nz-content>
+            <div class="inner-content">
+                <router-outlet></router-outlet>
+            </div>
+        </nz-content>
+    </nz-layout>
+</nz-layout>

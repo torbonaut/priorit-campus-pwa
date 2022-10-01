@@ -1,0 +1,20 @@
+<form nz-form [formGroup]="form" (ngSubmit)="submitForm()">
+    <nz-form-item>
+        <nz-form-label [nzSpan]="1" nzFor="title">Titel</nz-form-label>
+        <nz-form-control [nzSpan]="14">
+            <input nz-input #title formControlName="title" name="title" type="text" id="title" style="width: 100%;">
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <canvas nz-col [nzOffset]="1" #canvas [style.border]="'1px solid black'"></canvas>
+    </nz-form-item>
+    <nz-form-item>
+        <nz-form-label [nzSpan]="1" nzFor="tipField">Tipp</nz-form-label>
+        <nz-form-control [nzSpan]="14">
+            <input nz-input formControlName="tip" name="tipField" type="text" id="tipField" style="width: 100%;">
+        </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+        <button nz-button  nz-col [nzOffset]="1" nzType="primary">Speichern</button>
+    </nz-form-item>
+</form>

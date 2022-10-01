@@ -1,0 +1,91 @@
+:host {
+  display: flex;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-layout {
+  height: 100vh;
+}
+
+.menu-sidebar {
+  z-index: 10;
+  min-height: 100vh;
+  height:100%;
+  box-shadow: 2px 0 6px rgba(0,21,41,.35);
+  background: #3c3c3b;
+}
+
+.header-trigger {
+  height: 64px;
+  padding: 20px 24px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all .3s,padding 0s;
+}
+
+.trigger:hover {
+  color: #1890ff;
+}
+
+.sidebar-logo {
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  text-align: center;
+  img {
+      height: 64px;
+      vertical-align: middle;
+      transition: all 0.5s;
+  
+      &.small {
+        height: 24px;
+      }
+    }
+
+        h1 {
+          margin: 20px 0 10px 0;
+          color: #fff;
+          font-weight: 600;
+          font-size: 24px;
+          font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+          vertical-align: middle;
+        }
+}
+
+nz-header {
+  padding: 0;
+  width: 100%;
+  z-index: 2;
+  overflow: hidden;
+  color: white;
+}
+
+.app-header {
+  position: relative;
+  height: 64px;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  background: var(--priorit-primary-color);
+
+  h3 {
+    display: inline-block;
+    color: white;
+    font-weight: bold;
+  }
+}
+
+nz-content {
+  margin: 12px;
+}
+
+.inner-content {
+  padding: 24px;
+  background: #fff;
+  min-width: 320px;
+}
+
+nz-sider {
+    overflow: hidden;
+}

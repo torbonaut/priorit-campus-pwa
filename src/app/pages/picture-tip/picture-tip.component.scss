@@ -1,0 +1,45 @@
+h2 {
+    border-bottom: 1px solid #eee;
+    margin: 2em 0 1em 0;
+
+    span {
+        margin-right: 0.5em;
+        color: var(--priorit-primary-color);
+    }
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+div.tip {
+    display: flex;
+    width: 100%;
+    margin-bottom: 2em;
+
+    img.avatar {
+        flex: 0 0 64px;
+        width: 64px;
+        height: 64px;
+    }
+
+    div.info {
+        padding: 0 1em;
+        flex: 1 1 auto;
+        h3 {
+            margin: 0; line-height: 1em;
+            span {
+                color: #777;
+                font-size: 12px;
+            }
+        }
+
+        span {
+            margin-top: 10px;
+        }
+    }
+
+    div.action {
+        flex: 0 0 64px;
+    }
+}

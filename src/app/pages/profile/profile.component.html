@@ -1,0 +1,23 @@
+<h1>Profil</h1>
+<ng-container *ngIf="userData$ | async as user">
+    <h2>{{ user.firstname }} '{{ user.title }}' {{ user.lastname }}</h2>
+
+    <img src="https://k9i9drz6.directus.app/assets/{{ user.avatar }}/avatar.jpg" />
+
+    <ul>
+        <li><span nz-icon nzType="user"></span> Vorname: {{ user.firstname }}</li>
+        <li><span nz-icon nzType="user"></span>Nachname: {{ user.lastname }}</li>
+        <li><span nz-icon nzType="crown"></span>Spitzname: {{ user.title }}</li>
+        <li><span nz-icon nzType="mail"></span>E-Mail: {{ user.email }}</li>
+        <li><span nz-icon nzType="eye-invisible"></span>Passwort: ********</li>
+    </ul>
+
+    <button nz-button nzType="primary">Profil anpassen</button>
+</ng-container>
+
+
+
+<ng-container *ngIf="userData$ | async as user">
+    
+</ng-container>
+

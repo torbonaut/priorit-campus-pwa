@@ -1,0 +1,136 @@
+<h1 nz-typography>Dashboard</h1>
+
+<h2 nz-typography><span nz-icon nzType="user"></span>Meine Aktivitäten</h2>
+<ng-container *ngIf="myAppointments$ | async as my; else noOwnAppointments">
+    <div class="event">
+        <img
+            class="avatar"
+            src="https://k9i9drz6.directus.app/assets/beecedde-68ab-422c-a4f9-3d5a2129759f/avatar.jpg"
+        />
+        <div class="info">
+            <h3 nz-typography>
+                Irrlichter in Wien (Torben. G, Christoph G)<br /><span
+                    >Random Coffee</span
+                >
+            </h3>
+            <span>4. Oktober 2022, 14:30</span>
+        </div>
+    </div>
+    <ng-container *ngIf="my.length > 0; else noOwnAppointments">
+        <div class="event" *ngFor="let event of my">
+            <img
+                class="avatar"
+                src="https://k9i9drz6.directus.app/assets/{{
+                    event.avatar
+                }}/avatar.jpg"
+            />
+            <div class="info">
+                <h3 nz-typography>
+                    {{ event.title }} ({{
+                        event | appointmentUsers
+                    }})<br /><span>{{ event.category }}</span>
+                </h3>
+                <span>{{
+                    event.appointmentDateTime | date: "d. MMMM yyyy, HH:mm"
+                }}</span>
+            </div>
+            <div class="action">
+                <button nz-button nzType="primary" (click)="removeUser(event)">
+                    -
+                </button>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<h2 nz-typography>
+    <span nz-icon nzType="usergroup-add"></span>Alle Aktivitäten
+</h2>
+<ng-container
+    *ngIf="otherAppointments$ | async as other; else noOtherAppointments"
+>
+    <ng-container *ngIf="other.length > 0; else noOtherAppointments">
+        <div class="event" *ngFor="let event of other">
+            <img
+                class="avatar"
+                src="https://k9i9drz6.directus.app/assets/{{
+                    event.avatar
+                }}/avatar.jpg"
+            />
+            <div class="info">
+                <h3 nz-typography>
+                    {{ event.title }}<br /><span>{{ event.category }}</span>
+                </h3>
+                <span>{{
+                    event.appointmentDateTime | date: "d. MMMM yyyy, HH:mm"
+                }}</span>
+            </div>
+            <div class="action">
+                <button nz-button (click)="addUser(event)">+</button>
+            </div>
+        </div>
+        <ng-container *ngIf="pictures$ | async as pictures">
+            <div class="event" *ngFor="let picture of pictures">
+                <img
+                    class="avatar"
+                    src="https://k9i9drz6.directus.app/assets/{{
+                        picture.picture
+                    }}/avatar.jpg"
+                />
+                <div class="info">
+                    <h3 nz-typography>
+                        {{ picture.title }}<br /><span>{{ picture.tip }}</span>
+                    </h3>
+                    <span>{{
+                        picture.date_created | date: "d. MMMM yyyy, HH:mm"
+                    }}</span>
+                </div>
+                <div class="action">
+                    <button
+                        nz-button
+                        routerLink="/member/picture-tip/picture/{{
+                            picture.id
+                        }}"
+                    >
+                        Tipp abgeben
+                    </button>
+                </div>
+            </div>
+        </ng-container>
+
+        <div class="event">
+            <img
+                class="avatar"
+                src="https://k9i9drz6.directus.app/assets/479bfddf-9236-4084-8cad-7cbbf33e6441/avatar.jpg"
+            />
+            <div class="info">
+                <h3 nz-typography>
+                    Was wäre Engin als Rockband?<br /><span
+                        >Was wäre ich als ...?</span
+                    >
+                </h3>
+                <span>13 Antworten</span>
+            </div>
+        </div>
+        <div class="event">
+            <img
+                class="avatar"
+                src="https://k9i9drz6.directus.app/assets/beecedde-68ab-422c-a4f9-3d5a2129759f/avatar.jpg"
+            />
+            <div class="info">
+                <h3 nz-typography>
+                    He, I geh Billatschnig!<br /><span>Wer geht mit?</span>
+                </h3>
+                <span>um 12 Uhr 15</span>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<ng-template #noOwnAppointments>
+    leider keine eigenen Events vorhanden
+</ng-template>
+
+<ng-template #noOtherAppointments>
+    leider keine anderen Events vorhanden
+</ng-template>

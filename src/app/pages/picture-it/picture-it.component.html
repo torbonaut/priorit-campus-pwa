@@ -1,0 +1,43 @@
+<button nz-button nzType="primary" routerLink="/member/draw-picture">NEUES BILD</button>
+
+<h1 nz-typography>Neue Bilder</h1>
+
+<ng-container
+    *ngIf="newPictures$ | async as other; else noPictures">
+    <ng-container *ngIf="other.length > 0; else noPictures">
+        <div class="picture" *ngFor="let picture of other">
+            <div class="avatar">
+                <img class="avatar" (click)="openPicture(picture)" src="https://k9i9drz6.directus.app/assets/{{ picture.picture }}/avatar.jpg" />
+            </div>
+            <div class="info">
+
+                <h3 nz-typography>{{ picture.title}}<br /><span>{{ picture.user_created }}</span></h3>
+                <span>{{ picture.date_created | date:'d. MMMM yyyy, HH:mm' }}</span>
+
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<h1 nz-typography>Alte Bilder</h1>
+
+<ng-container
+    *ngIf="oldPictures$ | async as other; else noPictures">
+    <ng-container *ngIf="other.length > 0; else noPictures">
+        <div class="picture" *ngFor="let picture of other">
+                        <div class="avatar">
+                <img class="avatar" (click)="openPicture(picture)" src="https://k9i9drz6.directus.app/assets/{{ picture.picture }}/avatar.jpg" />
+            </div>
+
+            <div class="info">
+                <h3 nz-typography>{{ picture.title}}<br /><span>{{ picture.user_created }}</span></h3>
+                <span>{{ picture.date_created | date:'d. MMMM yyyy, HH:mm' }}</span>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<ng-template #noPictures>
+    Leider keine Bilder vorhanden
+</ng-template>
+
