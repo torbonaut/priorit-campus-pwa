@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { Navigate, RouterNavigation } from '@ngxs/router-plugin';
 import { Actions, ofActionSuccessful, Store } from '@ngxs/store';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { AppHeaderTitleService } from './app-header-title.service';
 import { Auth } from './core/auth/auth.actions';
 import { AuthState } from './core/auth/auth.state';
+import { User } from './core/user/user.actions';
 
 @Component({
     selector: 'app-root',
@@ -13,7 +14,7 @@ import { AuthState } from './core/auth/auth.state';
     styleUrls: ['./app.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnDestroy {
     private unsubscribe$: Subject<void> = new Subject();
     headerTitle$: Observable<string>;
     isCollapsed = true;
@@ -21,40 +22,40 @@ export class AppComponent implements OnInit, OnDestroy {
 
     constructor(
         headerTitleService: AppHeaderTitleService,
-        private readonly router: Router,
         private readonly msg: NzMessageService,
         private readonly store: Store,
         private readonly actions$: Actions,
-        private readonly ngZone: NgZone
     ) {
         this.headerTitle$ = headerTitleService.get();
 
         this.actions$
-            .pipe(ofActionSuccessful(Auth.Logout), takeUntil(this.unsubscribe$))
+            .pipe(
+                ofActionSuccessful(Auth.Logout),
+                takeUntil(this.unsubscribe$))
             .subscribe(() => {
-                this.ngZone.run( () => this.router.navigateByUrl('/login'))
-                
-                this.isCollapsed = true;
                 this.msg.info('Sie wurden abgemeldet.');
+                this.store.dispatch(new Navigate(['/login']));
+            });
+        
+        this.actions$
+            .pipe(
+                ofActionSuccessful(RouterNavigation),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe(() => {
+                this.isCollapsed = true;
             });
 
         this.isAuthenticated$ = this.store.select(AuthState.isAuthenticated);
 
-        
-    }
+        this.store.dispatch(new User.GetCurrent());
 
-    ngOnInit(): void {
         
     }
 
     ngOnDestroy(): void {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
-    }
-
-    navigate(path: string): string {
-        //this.isCollapsed = true;
-        return path;
     }
 
     logout() {

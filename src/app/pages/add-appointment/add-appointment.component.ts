@@ -1,19 +1,24 @@
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { Actions, ofActionSuccessful, Store } from "@ngxs/store";
-import { Observable, Subject, takeUntil } from "rxjs";
-import { AppHeaderTitleService } from "src/app/app-header-title.service";
-import { User } from "src/app/core/user/user.actions";
-import { UserStateModel } from "src/app/core/user/user.model";
-import { UserState } from "src/app/core/user/user.state";
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
+import { Actions, ofActionSuccessful, Store } from '@ngxs/store';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { AppHeaderTitleService } from 'src/app/app-header-title.service';
+import { User } from 'src/app/core/user/user.actions';
+import { UserStateModel } from 'src/app/core/user/user.model';
+import { UserState } from 'src/app/core/user/user.state';
 import { Appointments } from 'src/app/core/appointments/appointments.actions';
-import { FormControl, FormGroup, UntypedFormBuilder } from '@angular/forms';
-import { Router } from "@angular/router";
+import { FormControl, FormGroup } from '@angular/forms';
+import { Navigate } from '@ngxs/router-plugin';
 
 @Component({
     selector: 'add-appointment',
     styleUrls: ['./add-appointment.component.scss'],
     templateUrl: './add-appointment.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddAppointmentComponent implements OnInit, OnDestroy {
     private unsubscribe$: Subject<void> = new Subject();
@@ -25,19 +30,18 @@ export class AddAppointmentComponent implements OnInit, OnDestroy {
     });
 
     selectedUsers: string[] = [];
-    availableUsers: string[] = ["Rene 'grumpymorningface' Rassnitzer", "Andrea 'evilface' Svetnik", "Raimund 'Bierolee' Antonitsch"];
+    availableUsers: string[] = [
+        "Rene 'grumpymorningface' Rassnitzer",
+        "Andrea 'evilface' Svetnik",
+        "Raimund 'Bierolee' Antonitsch",
+    ];
 
     constructor(
         headerTitleService: AppHeaderTitleService,
         private store: Store,
-        private readonly router: Router,
-        private readonly actions$: Actions,
-        private fb: UntypedFormBuilder,
-        private readonly ngZone: NgZone
+        private readonly actions$: Actions
     ) {
         headerTitleService.set('Neue Aktivität');
-
-
 
         this.userData$ = store.select(UserState.userData);
 
@@ -46,17 +50,19 @@ export class AddAppointmentComponent implements OnInit, OnDestroy {
                 ofActionSuccessful(Appointments.Add),
                 takeUntil(this.unsubscribe$)
             )
-            .subscribe(() => { this.ngZone.run(() => this.router.navigateByUrl('/member/dashboard')); });
+            .subscribe(() => {
+                this.store.dispatch(new Navigate(['/member/dashboard']));
+            });
     }
 
     ngOnInit(): void {
-          const isUserLoaded: boolean = this.store.selectSnapshot<boolean>(
-              UserState.isLoaded
-          );
+        const isUserLoaded: boolean = this.store.selectSnapshot<boolean>(
+            UserState.isLoaded
+        );
 
-          if (!isUserLoaded) {
-              this.store.dispatch(new User.GetCurrent());
-          }      
+        if (!isUserLoaded) {
+            this.store.dispatch(new User.GetCurrent());
+        }
     }
 
     ngOnDestroy(): void {
@@ -65,17 +71,28 @@ export class AddAppointmentComponent implements OnInit, OnDestroy {
     }
 
     submitForm(): void {
-
-        this.userData$.subscribe(user =>
+        this.userData$.subscribe((user) =>
             this.store.dispatch(
                 new Appointments.Add({
-                    appointmentDateTime: this.form.value.appointmentDateTime?.toISOString().replace(/.\d+Z$/g, "") || '',
+                    appointmentDateTime:
+                        this.form.value.appointmentDateTime
+                            ?.toISOString()
+                            .replace(/.\d+Z$/g, '') || '',
                     category: this.form.value.category || '',
                     title: this.form.value.title || '',
-                    participants: JSON.stringify([{ userId: user.id, userName: user.firstname + ' ' + user.lastname.charAt(0) + '.'}]),
+                    participants: JSON.stringify([
+                        {
+                            userId: user.id,
+                            userName:
+                                user.firstname +
+                                ' ' +
+                                user.lastname.charAt(0) +
+                                '.',
+                        },
+                    ]),
                     avatar: user.avatar,
-                }))
+                })
+            )
         );
-
     }
 }

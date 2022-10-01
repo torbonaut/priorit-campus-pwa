@@ -1,31 +1,36 @@
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { Actions, ofActionSuccessful, Store } from "@ngxs/store";
-import { filter, map, Observable, Subject, takeUntil, withLatestFrom } from 'rxjs';
-import { AppHeaderTitleService } from "src/app/app-header-title.service";
-import { Pictures } from "src/app/core/picture-it/picture-it.actions";
-import { Picture, PictureClose } from "src/app/core/picture-it/picture-it.model";
-import { PicturesState } from "src/app/core/picture-it/picture-it.state";
-import { PictureTips } from "src/app/core/picture-tip/picture-tip.actions";
-import { PictureTip, PictureTipClose } from "src/app/core/picture-tip/picture-tip.model";
-import { PictureTipState } from "src/app/core/picture-tip/picture-tip.state";
-import { User } from "src/app/core/user/user.actions";
-import { UserStateModel } from "src/app/core/user/user.model";
-import { UserState } from "src/app/core/user/user.state";
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Navigate } from '@ngxs/router-plugin';
+import { Actions, ofActionSuccessful, Store } from '@ngxs/store';
+import { map, Observable, Subject, takeUntil, withLatestFrom } from 'rxjs';
+import { AppHeaderTitleService } from 'src/app/app-header-title.service';
+import { Pictures } from 'src/app/core/picture-it/picture-it.actions';
+import {
+    Picture,
+    PictureClose,
+} from 'src/app/core/picture-it/picture-it.model';
+import { PicturesState } from 'src/app/core/picture-it/picture-it.state';
+import { PictureTips } from 'src/app/core/picture-tip/picture-tip.actions';
+import {
+    PictureTip,
+    PictureTipClose,
+} from 'src/app/core/picture-tip/picture-tip.model';
+import { PictureTipState } from 'src/app/core/picture-tip/picture-tip.state';
+import { UserStateModel } from 'src/app/core/user/user.model';
+import { UserState } from 'src/app/core/user/user.state';
 
 @Component({
     selector: 'picture-tip',
     styleUrls: ['./picture-tip.component.scss'],
     templateUrl: './picture-tip.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PictureTipComponent implements OnDestroy{
-
+export class PictureTipComponent implements OnDestroy {
     private unsubscribe$: Subject<void> = new Subject();
     userData$: Observable<UserStateModel>;
     allPictures$: Observable<Picture[]>;
-    picture$: Observable<Picture|undefined>;
+    picture$: Observable<Picture | undefined>;
     pictureId: number;
     user$: Observable<UserStateModel>;
     isMyPicture: boolean;
@@ -39,13 +44,11 @@ export class PictureTipComponent implements OnDestroy{
     constructor(
         headerTitleService: AppHeaderTitleService,
         private readonly store: Store,
-        private readonly router: Router,
         private route: ActivatedRoute,
-        private readonly actions$: Actions,
-        private readonly ngZone: NgZone
+        private readonly actions$: Actions
     ) {
         this.pictureId = 0;
-        this.route.params.subscribe(params => {
+        this.route.params.subscribe((params) => {
             this.pictureId = +params['id'];
         });
 
@@ -60,17 +63,18 @@ export class PictureTipComponent implements OnDestroy{
         this.allPictures$ = this.store.select(PicturesState.all);
 
         this.picture$ = this.allPictures$.pipe(
-            map(pictures => pictures.find(item => item.id === this.pictureId))
+            map((pictures) =>
+                pictures.find((item) => item.id === this.pictureId)
+            )
         );
 
-        this.picture$.subscribe(picture => {
-            this.userData$.subscribe(user => {
+        this.picture$.subscribe((picture) => {
+            this.userData$.subscribe((user) => {
                 if (user.id === picture?.user_created) {
                     this.isMyPicture = true;
                 }
             });
         });
-
 
         this.allPictureTips$ = this.store.select(PictureTipState.all);
         this.allPictureTips$ = this.allPictureTips$.pipe(
@@ -80,44 +84,43 @@ export class PictureTipComponent implements OnDestroy{
             )
         );
 
-            this.actions$
+        this.actions$
             .pipe(
                 ofActionSuccessful(Pictures.Update),
                 takeUntil(this.unsubscribe$)
             )
-            .subscribe(() => { this.ngZone.run(() => this.router.navigateByUrl('/member/picture-it')); });
-
+            .subscribe(() => {
+                this.store.dispatch(new Navigate(['/member/picture-it']));
+            });
     }
 
     submitForm(): void {
-            this.store.dispatch(
-                new PictureTips.Add({
-                    tip: this.form.value.myTip || '',
-                    is_correct: false,
-                    picture_id: this.pictureId
-                }));
-      }
+        this.store.dispatch(
+            new PictureTips.Add({
+                tip: this.form.value.myTip || '',
+                is_correct: false,
+                picture_id: this.pictureId,
+            })
+        );
+    }
 
-      ngOnDestroy(): void {
+    ngOnDestroy(): void {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
     }
 
     acceptTip(tip: PictureTip) {
-        const user: UserStateModel = this.store.selectSnapshot(UserState.userData);
-
         const pictureTipClose: PictureTipClose = {
             id: tip.id,
-            is_correct: true
-        }
+            is_correct: true,
+        };
 
         const pictureClose: PictureClose = {
             id: this.pictureId,
-            is_open: false
-        }
+            is_open: false,
+        };
 
         this.store.dispatch(new PictureTips.Update(pictureTipClose));
         this.store.dispatch(new Pictures.Update(pictureClose));
     }
-
 }

@@ -1,13 +1,12 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { combineLatest, filter, map, Observable, Subject, tap, withLatestFrom } from 'rxjs';
+import { combineLatest, filter, map, Observable, Subject } from 'rxjs';
 import { AppHeaderTitleService } from 'src/app/app-header-title.service';
 import { Appointments } from 'src/app/core/appointments/appointments.actions';
 import { Appointment } from 'src/app/core/appointments/appointments.model';
 import { AppointmentsState } from 'src/app/core/appointments/appointments.state';
 import { Picture } from 'src/app/core/picture-it/picture-it.model';
 import { PicturesState } from 'src/app/core/picture-it/picture-it.state';
-import { User } from 'src/app/core/user/user.actions';
 import { UserStateModel } from 'src/app/core/user/user.model';
 import { UserState } from 'src/app/core/user/user.state';
 
@@ -36,13 +35,8 @@ export class DashboardComponent implements OnDestroy {
 
     this.user$ = this.store.select(UserState.userData);
 
-    const isUserLoaded = this.store.selectSnapshot<boolean>(UserState.isLoaded);
-
-    if (!isUserLoaded) {
-      this.store.dispatch(new User.GetCurrent());
-    }
-
     this.pictures$ = this.store.select(PicturesState.all).pipe(
+      filter(pictures => !!pictures),
       map(pictures => pictures.filter(item => item.is_open === true))
     );
 
@@ -89,7 +83,7 @@ export class DashboardComponent implements OnDestroy {
                 
           }
         )
-      ))
+      )) 
   };
   
   ngOnDestroy(): void {

@@ -1,22 +1,28 @@
 import { PictureUpload } from './../../core/picture-it/picture-it.model';
 import { Pictures } from './../../core/picture-it/picture-it.actions';
 import {
-    Component, Input, ElementRef, AfterViewInit, ViewChild, ChangeDetectionStrategy, NgZone
+    Component,
+    Input,
+    ElementRef,
+    ViewChild,
+    ChangeDetectionStrategy,
+    OnDestroy,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Store } from '@ngxs/store';
-import { fromEvent } from 'rxjs';
-import { switchMap, takeUntil, pairwise } from 'rxjs/operators'
+import { fromEvent, Subject } from 'rxjs';
+import { switchMap, takeUntil, pairwise } from 'rxjs/operators';
 import { AppHeaderTitleService } from 'src/app/app-header-title.service';
-import {  Router } from '@angular/router';
+import { Navigate } from '@ngxs/router-plugin';
 
 @Component({
     selector: 'draw-picture',
     styleUrls: ['./draw-picture.component.scss'],
     templateUrl: './draw-picture.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DrawPictureComponent {
+export class DrawPictureComponent implements OnDestroy {
+    unsubscribe$: Subject<void> = new Subject();
 
     @ViewChild('canvas') public canvas: ElementRef | undefined;
 
@@ -35,14 +41,14 @@ export class DrawPictureComponent {
     constructor(
         headerTitleService: AppHeaderTitleService,
         private store: Store,
-        private readonly ngZone: NgZone,
-        private readonly router: Router
     ) {
         headerTitleService.set('Zeichne ein Bild');
-
     }
 
-
+    ngOnDestroy() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
 
     public ngAfterViewInit() {
         const canvasEl: HTMLCanvasElement = this.canvas?.nativeElement;
@@ -64,18 +70,20 @@ export class DrawPictureComponent {
             .pipe(
                 switchMap((e) => {
                     // after a mouse down, we'll record all mouse moves
-                    return fromEvent<MouseEvent>(canvasEl, 'mousemove')
-                        .pipe(
-                            // we'll stop (and unsubscribe) once the user releases the mouse
-                            // this will trigger a 'mouseup' event
-                            takeUntil(fromEvent<MouseEvent>(canvasEl, 'mouseup')),
-                            // we'll also stop (and unsubscribe) once the mouse leaves the canvas (mouseleave event)
-                            takeUntil(fromEvent<MouseEvent>(canvasEl, 'mouseleave')),
-                            // pairwise lets us get the previous value to draw a line from
-                            // the previous point to the current point
-                            pairwise<MouseEvent>()
-                        )
-                })
+                    return fromEvent<MouseEvent>(canvasEl, 'mousemove').pipe(
+                        // we'll stop (and unsubscribe) once the user releases the mouse
+                        // this will trigger a 'mouseup' event
+                        takeUntil(fromEvent<MouseEvent>(canvasEl, 'mouseup')),
+                        // we'll also stop (and unsubscribe) once the mouse leaves the canvas (mouseleave event)
+                        takeUntil(
+                            fromEvent<MouseEvent>(canvasEl, 'mouseleave')
+                        ),
+                        // pairwise lets us get the previous value to draw a line from
+                        // the previous point to the current point
+                        pairwise<MouseEvent>()
+                    );
+                }),
+                takeUntil(this.unsubscribe$)
             )
             .subscribe((res: [MouseEvent, MouseEvent]) => {
                 const rect = canvasEl.getBoundingClientRect();
@@ -83,12 +91,12 @@ export class DrawPictureComponent {
                 // previous and current position with the offset
                 const prevPos = {
                     x: res[0].clientX - rect.left,
-                    y: res[0].clientY - rect.top
+                    y: res[0].clientY - rect.top,
                 };
 
                 const currentPos = {
                     x: res[1].clientX - rect.left,
-                    y: res[1].clientY - rect.top
+                    y: res[1].clientY - rect.top,
                 };
 
                 // this method we'll implement soon to do the actual drawing
@@ -96,8 +104,13 @@ export class DrawPictureComponent {
             });
     }
 
-    private drawOnCanvas(prevPos: { x: number, y: number }, currentPos: { x: number, y: number }) {
-        if (!this.cx) { return; }
+    private drawOnCanvas(
+        prevPos: { x: number; y: number },
+        currentPos: { x: number; y: number }
+    ) {
+        if (!this.cx) {
+            return;
+        }
 
         this.cx.beginPath();
 
@@ -111,19 +124,25 @@ export class DrawPictureComponent {
     submitForm() {
         const canvasEl: HTMLCanvasElement = this.canvas?.nativeElement;
 
-        const file:FormData = new FormData();
+        const file: FormData = new FormData();
         file.append('title', 'demoimg');
-        file.append('file', this.dataURItoBlob(canvasEl.toDataURL('image/png')));
-        const pictureUpload:PictureUpload = {
+        file.append(
+            'file',
+            this.dataURItoBlob(canvasEl.toDataURL('image/png'))
+        );
+        const pictureUpload: PictureUpload = {
             file: file,
             title: this.form.value.title || '',
             tip: this.form.value.tip || '',
         };
-        this.store.dispatch(
-            new Pictures.UploadFile(pictureUpload)).subscribe( () => this.ngZone.run( () => this.router.navigateByUrl('/member/picture-it')));
+        this.store
+            .dispatch(new Pictures.UploadFile(pictureUpload))
+            .subscribe(() =>
+                this.store.dispatch(new Navigate(['/member/picture-it']))
+            );
     }
 
-    private dataURItoBlob(dataURI:string):Blob {
+    private dataURItoBlob(dataURI: string): Blob {
         // convert base64 to raw binary data held in a string
         // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
         var byteString = atob(dataURI.split(',')[1]);
@@ -138,8 +157,6 @@ export class DrawPictureComponent {
             ia[i] = byteString.charCodeAt(i);
         }
 
-        return new Blob([ab], {type: mimeString});
+        return new Blob([ab], { type: mimeString });
     }
-
-
 }
