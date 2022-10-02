@@ -23,7 +23,13 @@
             [nzInlineCollapsed]="isCollapsed"
             *ngIf="!isCollapsed"
         >
-            <li  *ngIf="isAuthenticated$ | async" nz-submenu nzOpen nzTitle="Allgemein" nzIcon="appstore">
+            <li
+                *ngIf="isAuthenticated$ | async"
+                nz-submenu
+                nzOpen
+                nzTitle="Allgemein"
+                nzIcon="appstore"
+            >
                 <ul>
                     <li nz-menu-item nzMatchRouter>
                         <a routerLink="/member/dashboard">Dashboard</a>
@@ -36,23 +42,32 @@
                     </li>
                 </ul>
             </li>
-            <li *ngIf="isAuthenticated$ | async" nz-submenu nzOpen nzTitle="Apps" nzIcon="form">
+            <li
+                *ngIf="isAuthenticated$ | async"
+                nz-submenu
+                nzOpen
+                nzTitle="Apps"
+                nzIcon="form"
+            >
                 <ul>
                     <li nz-menu-item nzMatchRouter>
                         <a routerLink="/member/add-appointment">Teamtreff</a>
                     </li>
-                                        <li nz-menu-item nzMatchRouter>
+                    <li nz-menu-item nzMatchRouter>
                         <a routerLink="/member/picture-it">A wos isn des?</a>
                     </li>
                     <li nz-menu-item nzMatchRouter>
                         <a routerLink="/member/what-would-i-be-as">WasWärIch</a>
                     </li>
                     <li nz-menu-item nzMatchRouter>
-                        <a routerLink="/member/billatschnig">A gemma Billatschnig?</a>
+                        <a routerLink="/member/billatschnig"
+                            >A gemma Billatschnig?</a
+                        >
                     </li>
                 </ul>
             </li>
         </ul>
+        <div class="login-message" *ngIf="(isAuthenticated$ | async) === false">Bitte melde dich an um das Menü zu sehen.</div>
     </nz-sider>
     <nz-layout>
         <nz-header>
@@ -68,6 +83,17 @@
                     ></span>
                 </span>
                 <h3 nz-typography>{{ headerTitle$ | async }}</h3>
+
+                <span
+                    class="network-status status-online"
+                    *ngIf="(isOnline$ | async) === true"
+                    >online</span
+                >
+                <span
+                    class="network-status status-offline"
+                    *ngIf="(isOnline$ | async) === false"
+                    >offline</span
+                >
             </div>
         </nz-header>
         <nz-content>

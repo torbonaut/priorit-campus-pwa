@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+    production: true,
+    apiBaseUrl: 'https://k9i9drz6.directus.app',
 };
