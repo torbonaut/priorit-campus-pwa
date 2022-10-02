@@ -6,6 +6,7 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 import { AppHeaderTitleService } from './app-header-title.service';
 import { Auth } from './core/auth/auth.actions';
 import { AuthState } from './core/auth/auth.state';
+import { NetworkService } from './core/common/network.service';
 import { User } from './core/user/user.actions';
 
 @Component({
@@ -20,13 +21,25 @@ export class AppComponent implements OnDestroy {
     isCollapsed = true;
     isAuthenticated$: Observable<boolean>;
 
+    isOnline$: Observable<boolean>;
+
     constructor(
         headerTitleService: AppHeaderTitleService,
         private readonly msg: NzMessageService,
         private readonly store: Store,
-        private readonly actions$: Actions
+        private readonly actions$: Actions,
+        private readonly networkStatus: NetworkService
     ) {
         this.headerTitle$ = headerTitleService.get();
+        this.isOnline$ = this.networkStatus.isOnline$.asObservable();
+
+        this.isOnline$
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((isOnline) => {
+                if (!isOnline) {
+                    this.msg.warning('Du bist jetzt offline!');
+                }
+            });
 
         this.actions$
             .pipe(ofActionSuccessful(Auth.Logout), takeUntil(this.unsubscribe$))

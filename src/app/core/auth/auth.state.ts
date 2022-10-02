@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Action, Selector, State, StateContext, Store } from "@ngxs/store";
-import { mergeMap, tap } from "rxjs";
-import { EmptyUserState } from "../user/user.model";
+import { finalize, of, tap } from "rxjs";
 import { Auth } from "./auth.actions";
 import { AuthResponse, AuthStateModel, EmptyAuthState } from "./auth.model";
 import { AuthService } from "./auth.service";
@@ -13,8 +12,8 @@ import { AuthService } from "./auth.service";
 @Injectable()
 export class AuthState {
     constructor(
-        private readonly store: Store,
-        private readonly authService: AuthService
+        private readonly authService: AuthService,
+        private readonly store: Store
     ) { }
 
     @Selector()
@@ -59,14 +58,14 @@ export class AuthState {
 
     @Action(Auth.Clear)
     clear(ctx: StateContext<AuthStateModel>, action: Auth.Clear) {
-        this.store.reset({ auth: EmptyAuthState, user: EmptyUserState });
+        ctx.setState(EmptyAuthState);
     }
     
     @Action(Auth.Logout)
     logout(ctx: StateContext<AuthStateModel>) {
-        const state = ctx.getState(); 
+        const state = ctx.getState();
         return this.authService.logout(state.refreshToken).pipe(
-            mergeMap( () => ctx.dispatch(new Auth.Clear()))
+            finalize(() => { this.store.reset({}) })
         );
     }
 }

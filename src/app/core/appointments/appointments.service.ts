@@ -1,11 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 import { Appointment, AppointmentsApiResponse } from "./appointments.model";
 
 @Injectable()
 export class AppointmentsService {
-    private readonly API_URL = 'https://k9i9drz6.directus.app/items/appointments';
+    private readonly API_BASE_URL = environment.apiBaseUrl;
+    private readonly API_URL = this.API_BASE_URL + '/items/appointments';
 
     constructor(private readonly http: HttpClient) {}
 
